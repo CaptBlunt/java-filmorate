@@ -6,10 +6,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class FilmControllerTest {
@@ -44,7 +43,9 @@ public class FilmControllerTest {
     @Test
     public void movieDescription199Characters() {
         LocalDate releaseDate = LocalDate.parse("2010-10-10");
-        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" + "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" + "1111111111111111111111111111111111111111", releaseDate, 180);
+        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" +
+                "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" +
+                "1111111111111111111111111111111111111111", releaseDate, 180);
         int length = film.getDescription().length();
         assertEquals(199, length, "Количество символов в описании не 199");
 
@@ -58,7 +59,9 @@ public class FilmControllerTest {
     @Test
     public void movieDescription200Characters() {
         LocalDate releaseDate = LocalDate.parse("2010-10-10");
-        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" + "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" + "11111111111111111111111111111111111111111", releaseDate, 180);
+        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" +
+                "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" +
+                "11111111111111111111111111111111111111111", releaseDate, 180);
         int length = film.getDescription().length();
         assertEquals(200, length, "Количество символов в описании не 200");
 
@@ -72,7 +75,9 @@ public class FilmControllerTest {
     @Test
     public void movieDescription201Characters() {
         LocalDate releaseDate = LocalDate.parse("2010-10-10");
-        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" + "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" + "111111111111111111111111111111111111111111", releaseDate, 180);
+        Film film = new Film(1, "Начало", "111111111111111111111111111111111111111111111111111111111111" +
+                "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111" +
+                "111111111111111111111111111111111111111111", releaseDate, 180);
         int length = film.getDescription().length();
         assertEquals(201, length, "Количество символов в описании не 201");
 
@@ -95,7 +100,7 @@ public class FilmControllerTest {
 
     @Test
     public void filmRelease1895_12_28() {
-        LocalDate releaseDate = FilmController.RELEASEFIRSTFILM;
+        LocalDate releaseDate = FilmController.RELEASE_FIRST_FILM;
         Film film = new Film(1, "Прибытие поезда на вокзал Ла-Сьота", "ываыва", releaseDate, 180);
 
         filmController.addFilm(film);
@@ -147,4 +152,5 @@ public class FilmControllerTest {
         List<Film> list = filmController.getAllFilms();
         assertEquals(1, list.size(), "Фильм не добавился");
     }
+
 }

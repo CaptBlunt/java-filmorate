@@ -18,9 +18,40 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-
     private final Map<Integer, User> users = new HashMap<>();
     private int generatorId = 0;
+
+    @PostMapping
+    public User addUser(@Valid @RequestBody User user) {
+        log.info("Пришел Post запрос /users с телом: {}", user);
+        validationUser(user);
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
+        user.setId(++generatorId);
+        users.put(user.getId(), user);
+        return user;
+    }
+
+    @PutMapping
+    public User changeUser(@Valid @RequestBody User user) {
+        log.info("Пришёл PUT запрос /users с телом: {}", user);
+        if (!users.containsKey(user.getId())) {
+            String message = "Такой пользователь не зарегистрирован";
+            log.error(message);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
+        } else {
+            validationUser(user);
+            users.put(user.getId(), user);
+        }
+        return user;
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        log.info("GET /users");
+        return new ArrayList<>(users.values());
+    }
 
     public void validationUser(User user) {
         String userEmail = user.getEmail();
@@ -43,37 +74,5 @@ public class UserController {
         } else if (userName == null || userName.isEmpty()) {
             user.setName(userLogin);
         }
-    }
-
-    @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        log.info("POST /users");
-        validationUser(user);
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(++generatorId);
-        users.put(user.getId(), user);
-        return user;
-    }
-
-    @PutMapping
-    public User changeUser(@Valid @RequestBody User user) {
-        log.info("PUT /users");
-        if (!users.containsKey(user.getId())) {
-            String message = "Такой пользователь не зарегистрирован";
-            log.error(message);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
-        } else {
-            validationUser(user);
-            users.put(user.getId(), user);
-        }
-        return user;
-    }
-
-    @GetMapping
-    public List<User> getAllUsers() {
-        log.info("GET /users");
-        return new ArrayList<>(users.values());
     }
 }
