@@ -30,6 +30,7 @@ public class UserController {
         }
         user.setId(++generatorId);
         users.put(user.getId(), user);
+        log.info("Отправлен ответ add /users с телом : {}", user);
         return user;
     }
 
@@ -40,10 +41,10 @@ public class UserController {
             String message = "Такой пользователь не зарегистрирован";
             log.error(message);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
-        } else {
-            validationUser(user);
-            users.put(user.getId(), user);
         }
+        validationUser(user);
+        users.put(user.getId(), user);
+        log.info("Отправлен ответ change /users с телом : {}", user);
         return user;
     }
 

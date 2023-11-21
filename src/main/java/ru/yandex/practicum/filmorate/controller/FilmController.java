@@ -29,6 +29,7 @@ public class FilmController {
         validationFilm(film);
         film.setId(++generatorId);
         films.put(film.getId(), film);
+        log.info("Отправлен ответ add /films с телом : {}", film);
         return film;
     }
 
@@ -42,6 +43,7 @@ public class FilmController {
         }
         validationFilm(film);
         films.put(film.getId(), film);
+        log.info("Отправлен ответ change /films с телом : {}", film);
         return film;
     }
 
