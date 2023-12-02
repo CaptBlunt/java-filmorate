@@ -13,7 +13,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int generatorId = 0;
-    private final String NOT_FOUND_USER = "Пользователь с id %d не найден";
+    private static final String NOT_FOUND_USER = "Пользователь с id %d не найден";
 
     @Override
     public User addUser(User user) {
