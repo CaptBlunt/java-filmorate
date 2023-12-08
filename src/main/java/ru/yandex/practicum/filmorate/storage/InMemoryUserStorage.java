@@ -11,9 +11,9 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
+    private static final String NOT_FOUND_USER = "Пользователь с id %d не найден";
     private final Map<Integer, User> users = new HashMap<>();
     private int generatorId = 0;
-    private static final String NOT_FOUND_USER = "Пользователь с id %d не найден";
 
     @Override
     public User addUser(User user) {
@@ -25,16 +25,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User changeUser(User userUpd) {
-        if (users.containsKey(userUpd.getId())) {
-            User mutableUser = users.get(userUpd.getId());
-            Set<Integer> userIds = mutableUser.getFriends();
-            userUpd.setFriends(userIds);
-            users.put(userUpd.getId(), userUpd);
-        } else {
+        User mutableUser = users.get(userUpd.getId());
+        if (mutableUser == null) {
             String message = String.format(NOT_FOUND_USER, userUpd.getId());
             log.error(message);
             throw new NotFoundException(message);
         }
+        Set<Integer> userIds = mutableUser.getFriends();
+        userUpd.setFriends(userIds);
+        users.put(userUpd.getId(), userUpd);
         return userUpd;
     }
 
@@ -54,6 +53,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User findUserById(Integer userId) {
-        return getAllUsers().stream().filter(p -> p.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_USER, userId)));
+        return getAllUsers()
+                .stream()
+                .filter(p -> p.getId() == userId)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_USER, userId)));
     }
 }

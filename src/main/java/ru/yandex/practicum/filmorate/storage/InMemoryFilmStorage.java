@@ -10,8 +10,8 @@ import java.util.*;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> films = new HashMap<>();
     private static final String NOT_FOUND_FILM = "Фильм с id %d не найден";
+    private final Map<Integer, Film> films = new HashMap<>();
     private int generatorId = 0;
 
     @Override
@@ -24,16 +24,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film changeFilm(Film filmUpd) {
-        if (films.containsKey(filmUpd.getId())) {
-            Film mutableFilm = films.get(filmUpd.getId());
-            Set<Integer> likes = mutableFilm.getLikes();
-            filmUpd.setLikes(likes);
-            films.put(filmUpd.getId(), filmUpd);
-        } else {
+        Film mutableFilm = films.get(filmUpd.getId());
+        if (mutableFilm == null) {
             String message = String.format(NOT_FOUND_FILM, filmUpd.getId());
             log.error(message);
             throw new NotFoundException(message);
         }
+        Set<Integer> filmsIds = mutableFilm.getLikes();
+        filmUpd.setLikes(filmsIds);
+        films.put(filmUpd.getId(), filmUpd);
         return filmUpd;
     }
 
@@ -53,6 +52,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film findFilmById(Integer filmId) {
-        return getAllFilms().stream().filter(p -> p.getId() == filmId).findFirst().orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_FILM, filmId)));
+        return getAllFilms()
+                .stream()
+                .filter(p -> p.getId() == filmId)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_FILM, filmId)));
     }
 }
