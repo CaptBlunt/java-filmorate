@@ -33,9 +33,9 @@ public class UserController {
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        inMemoryUserStorage.addUser(user);
-        log.info("Отправлен ответ addUser /users с телом : {}", user);
-        return user;
+        User savedUser = inMemoryUserStorage.addUser(user);
+        log.info("Отправлен ответ addUser /users с телом : {}", savedUser);
+        return savedUser;
     }
 
     @PutMapping

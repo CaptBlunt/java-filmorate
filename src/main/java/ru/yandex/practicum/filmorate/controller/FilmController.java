@@ -32,9 +32,9 @@ public class FilmController {
     public Film addFilm(@Valid @RequestBody Film film) {
         log.info("Пришел Post запрос /films с телом: {}", film);
         validationFilm(film);
-        inMemoryFilmStorage.addFilm(film);
-        log.info("Отправлен ответ addFilm /films с телом : {}", film);
-        return film;
+        Film savedFilm = inMemoryFilmStorage.addFilm(film);
+        log.info("Отправлен ответ addFilm /films с телом : {}", savedFilm);
+        return savedFilm;
     }
 
     @PutMapping
