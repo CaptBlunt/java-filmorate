@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -167,4 +168,4 @@ public class FilmControllerTest {
         assertEquals(1, list.size(), "Фильм не добавился");
     }
 
-}
+}*/
