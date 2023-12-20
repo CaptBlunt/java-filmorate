@@ -39,6 +39,7 @@ public class GenreDaoImpl implements GenreDao {
             throw new NotFoundException(message);
         }
     }
+
     private static RowMapper<Genre> getGenreMapper() {
         return (rs, rowNum) -> new Genre(rs.getInt("id"),
                 rs.getString("name"));
