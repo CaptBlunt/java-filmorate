@@ -81,11 +81,9 @@ public class FilmDaoImpl implements FilmDao {
             throw new NotFoundException(String.format(NOT_FOUND_FILM, filmId));
         }
         if (!filmUpd.getGenres().isEmpty()) {
-            String querySql = "DELETE FROM film_genres " +
-                    "WHERE film_id =?";
+            String querySql = "DELETE FROM film_genres WHERE film_id =?";
             jdbcTemplate.update(querySql, filmId);
-            String insertGenreQuery = "INSERT INTO film_genres (film_id, genre_id) " +
-                    "VALUES (?, ?)";
+            String insertGenreQuery = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
             filmUpd.setGenres(filmUpd.getGenres()
                     .stream()
                     .distinct()
@@ -94,8 +92,7 @@ public class FilmDaoImpl implements FilmDao {
                     .forEach(genre ->
                             jdbcTemplate.update(insertGenreQuery, filmId, genre.getId()));
         } else {
-            String querySql = "DELETE FROM film_genres " +
-                    "WHERE film_id =?";
+            String querySql = "DELETE FROM film_genres WHERE film_id =?";
             jdbcTemplate.update(querySql, filmId);
         }
         return filmUpd;
@@ -107,16 +104,13 @@ public class FilmDaoImpl implements FilmDao {
             String message = String.format(NOT_FOUND_FILM, filmId);
             throw new NotFoundException(message);
         }
-        String sqlQuery = "INSERT INTO user_likes(user_id, film_id) " +
-                "VALUES (?, ?)";
+        String sqlQuery = "INSERT INTO user_likes(user_id, film_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, userId, filmId);
     }
 
     @Override
     public Set<Integer> getAllLikesById(Integer userId) {
-        String sql = "SELECT user_id " +
-                "FROM user_likes " +
-                "WHERE film_id = ?";
+        String sql = "SELECT user_id FROM user_likes WHERE film_id = ?";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, userId);
         Set<Integer> likes = new HashSet<>();
         while (sqlRowSet.next()) {
@@ -142,13 +136,13 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public List<Film> popularFilm(Integer countFilms) {
         String query = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rate, " +
-                "f.mpa_id, mpa.name, COUNT(user_likes.user_id) AS likes "
-                + "FROM films f "
-                + "LEFT JOIN user_likes ON f.id = user_likes.film_id "
-                + "JOIN mpa ON f.mpa_id = mpa.id "
-                + "GROUP BY f.id "
-                + "ORDER BY likes DESC "
-                + "LIMIT ?";
+                 "f.mpa_id, mpa.name, COUNT(user_likes.user_id) AS likes " +
+                 "FROM films f " +
+                 "LEFT JOIN user_likes ON f.id = user_likes.film_id " +
+                 "JOIN mpa ON f.mpa_id = mpa.id " +
+                 "GROUP BY f.id " +
+                 "ORDER BY likes DESC " +
+                 "LIMIT ?";
 
         RowMapper<Film> filmRowMapper = getFilmMapper();
         return jdbcTemplate.query(query, filmRowMapper, countFilms);

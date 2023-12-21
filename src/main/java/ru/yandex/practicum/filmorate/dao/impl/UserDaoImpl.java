@@ -23,16 +23,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        String sqlQuery = "SELECT * " +
-                "FROM users";
+        String sqlQuery = "SELECT * FROM users";
         return jdbcTemplate.query(sqlQuery, getUserMapper());
     }
 
     @Override
     public User getUserById(int userId) {
-        String sqlQuery = "SELECT * " +
-                "FROM users " +
-                "WHERE id = ?";
+        String sqlQuery = "SELECT * FROM users WHERE id = ?";
         try {
             return jdbcTemplate.queryForObject(sqlQuery, getUserMapper(), userId);
         } catch (RuntimeException e) {
@@ -53,8 +50,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteUser(int userId) {
-        String sqlQuery = "DELETE FROM users " +
-                "WHERE id = ?";
+        String sqlQuery = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sqlQuery, userId);
     }
 
@@ -62,8 +58,7 @@ public class UserDaoImpl implements UserDao {
     public void addFriends(Integer userId, Integer friendId) {
         getUserById(userId);
         getUserById(friendId);
-        String sqlQuery = "INSERT INTO friends(user_id, friend_id) " +
-                "VALUES (?, ?)";
+        String sqlQuery = "INSERT INTO friends(user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
