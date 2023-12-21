@@ -20,7 +20,7 @@ public interface FilmDao {
 
     Set<Integer> getAllLikesById(Integer userId);
 
-    void delLike(Integer userId, Integer filmId);
+    void deleteUserLike(Integer userId, Integer filmId);
 
     List<Film> popularFilm(Integer countFilms);
 }

@@ -49,8 +49,8 @@ public class UserService implements UserStorage {
     }
 
     @Override
-    public void delFriend(Integer userId, Integer friendId) {
-        userDao.delFriend(userId, friendId);
+    public void deleteFriend(Integer userId, Integer friendId) {
+        userDao.deleteFriend(userId, friendId);
     }
 
     @Override

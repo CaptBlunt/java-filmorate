@@ -18,7 +18,7 @@ public interface UserDao {
 
     List<User> getAllFriendsById(Integer userId);
 
-    void delFriend(Integer userId, Integer friendId);
+    void deleteFriend(Integer userId, Integer friendId);
 
     List<User> getMutualFriends(Integer userId, Integer friendId);
 

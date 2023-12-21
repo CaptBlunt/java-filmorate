@@ -76,7 +76,7 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public void delFriend(@PathVariable("id") int userId, @PathVariable("friendId") int friendId) {
         log.info("Пришёл DEL запрос /users/" + userId + "/friends/" + friendId);
-        userService.delFriend(userId, friendId);
+        userService.deleteFriend(userId, friendId);
         log.info("Отправлен ответ delFriend /users/" + userId + "/friends/" + friendId);
     }
 

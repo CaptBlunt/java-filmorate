@@ -50,8 +50,8 @@ public class FilmService implements FilmStorage {
     }
 
     @Override
-    public void delLike(Integer userId, Integer friendId) {
-        filmDao.delLike(userId, friendId);
+    public void deleteUserLike(Integer userId, Integer friendId) {
+        filmDao.deleteUserLike(userId, friendId);
     }
 
     @Override

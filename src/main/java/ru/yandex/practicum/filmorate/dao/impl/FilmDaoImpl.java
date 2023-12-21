@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmGenresStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
@@ -28,9 +27,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Film getFilmById(int filmId) {
-        String sqlQuery = "SELECT * " +
-                "FROM films " +
-                "WHERE id = ?";
+        String sqlQuery = "SELECT * FROM films WHERE id = ?";
         try {
             return jdbcTemplate.queryForObject(sqlQuery, getFilmMapper(), filmId);
         } catch (RuntimeException e) {
@@ -42,8 +39,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public List<Film> getAllFilms() {
-        String sqlQuery = "SELECT * " +
-                "FROM films";
+        String sqlQuery = "SELECT * FROM films";
         return jdbcTemplate.query(sqlQuery, getFilmMapper());
     }
 
@@ -57,17 +53,16 @@ public class FilmDaoImpl implements FilmDao {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             String query = "INSERT INTO film_genres (film_id, genre_id) " +
                     "VALUES (?,?)";
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update(query, film.getId(), genre.getId());
-            }
+            film.getGenres()
+                    .forEach(genre ->
+                            jdbcTemplate.update(query, film.getId(), genre.getId()));
         }
         return film;
     }
 
     @Override
     public void deleteFilm(int filmId) {
-        String sqlQuery = "DELETE FROM films " +
-                "WHERE id = ?";
+        String sqlQuery = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
@@ -95,9 +90,9 @@ public class FilmDaoImpl implements FilmDao {
                     .stream()
                     .distinct()
                     .collect(Collectors.toList()));
-            for (Genre genre : filmUpd.getGenres()) {
-                jdbcTemplate.update(insertGenreQuery, filmId, genre.getId());
-            }
+            filmUpd.getGenres()
+                    .forEach(genre ->
+                            jdbcTemplate.update(insertGenreQuery, filmId, genre.getId()));
         } else {
             String querySql = "DELETE FROM film_genres " +
                     "WHERE film_id =?";
@@ -134,19 +129,12 @@ public class FilmDaoImpl implements FilmDao {
         return (rs, rowNum) -> {
             Film film = new Film();
             film.setId(rs.getInt("id"));
-
             film.setName(rs.getString("name"));
-
             film.setDescription(rs.getString("description"));
-
             film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-
             film.setDuration(rs.getInt("duration"));
-
             film.setMpa(mpaStorage.getMpaById(rs.getInt("mpa_id")));
-
             film.setGenres(filmGenresStorage.getGenres(film.getId()));
-
             return film;
         };
     }
@@ -155,7 +143,8 @@ public class FilmDaoImpl implements FilmDao {
     public List<Film> popularFilm(Integer countFilms) {
         String query = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rate, " +
                 "f.mpa_id, mpa.name, COUNT(user_likes.user_id) AS likes "
-                + "FROM films f " + "LEFT JOIN user_likes ON f.id = user_likes.film_id "
+                + "FROM films f "
+                + "LEFT JOIN user_likes ON f.id = user_likes.film_id "
                 + "JOIN mpa ON f.mpa_id = mpa.id "
                 + "GROUP BY f.id "
                 + "ORDER BY likes DESC "
@@ -166,7 +155,7 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public void delLike(Integer userId, Integer filmId) {
+    public void deleteUserLike(Integer userId, Integer filmId) {
         if (userId <= 0 || filmId <= 0) {
             String message = String.format(NOT_FOUND_FILM, filmId);
             throw new NotFoundException(message);

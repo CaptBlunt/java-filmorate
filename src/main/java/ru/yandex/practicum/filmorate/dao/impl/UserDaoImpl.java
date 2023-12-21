@@ -89,7 +89,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void delFriend(Integer userId, Integer friendId) {
+    public void deleteFriend(Integer userId, Integer friendId) {
         String sqlQuery = "DELETE FROM friends " +
                 "WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
@@ -97,13 +97,11 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
-        String sqlQuery = "SELECT * " +
-                "FROM users " +
-                "WHERE id IN (SELECT friend_id " +
-                "FROM friends " +
-                "WHERE user_id = ? AND friend_id IN (SELECT friend_id " +
-                "FROM friends " +
-                "WHERE user_id = ?));";
+        String sqlQuery = "SELECT u.* " +
+                "FROM users u " +
+                "JOIN friends f1 ON u.id = f1.friend_id " +
+                "JOIN friends f2 ON f1.friend_id = f2.friend_id " +
+                "WHERE f1.user_id = ? AND f2.user_id = ?";
         return jdbcTemplate.query(sqlQuery, getUserMapper(), userId, friendId);
     }
 
