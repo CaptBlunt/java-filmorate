@@ -1,50 +1,61 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
-    private final InMemoryUserStorage inMemoryUserStorage;
 
-    @Autowired
-    public UserController(UserService userService, InMemoryUserStorage inMemoryUserStorage) {
-        this.userService = userService;
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") int userId) {
+        log.info("Пришёл GET запрос /users/" + userId);
+        User user = userService.getUserById(userId);
+        log.info("Отправлен ответ getUserById /users/" + userId + "с телом : {}", user);
+        return user;
+    }
+
+    @GetMapping
+    public List<User> getAllUser() {
+        log.info("Пришёл GET запрос /users");
+        List<User> users = userService.getAllUsers();
+        log.info("Отправлен ответ getAllUser /users с телом {}", users);
+        return users;
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        log.info("Пришел Post запрос /users с телом: {}", user);
-        validationUser(user);
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        User savedUser = inMemoryUserStorage.addUser(user);
-        log.info("Отправлен ответ addUser /users с телом : {}", savedUser);
-        return savedUser;
+    public User addUser(@Valid @RequestBody User newUser) {
+        log.info("Пришёл POST запрос /users с телом {}", newUser);
+        validationUser(newUser);
+        userService.addUser(newUser);
+        log.info("Пришёл ответ addUser /users с телом {}", newUser);
+        return newUser;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable("id") int userId) {
+        log.info("Пришёл DELETE запрос /users/" + userId);
+        userService.deleteUser(userId);
     }
 
     @PutMapping
     public User changeUser(@Valid @RequestBody User user) {
         log.info("Пришёл PUT запрос /users с телом: {}", user);
         validationUser(user);
-        inMemoryUserStorage.changeUser(user);
-        log.info("Отправлен ответ changeUser /users с телом : {}", user);
-        return user;
+        log.info("Отправлен ответ changeFilm /films с телом : {}", user);
+        return userService.changeUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -54,52 +65,28 @@ public class UserController {
         log.info("Отправлен ответ addFriends /users/" + userid + "/friends/" + friendId);
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        log.info("Пришёл GET запрос /users");
-        List<User> users = inMemoryUserStorage.getAllUsers();
-        log.info("Отправлен ответ getAllUsers /users с телом : {}", users);
-        return users;
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriendsById(@PathVariable("id") int userId) {
+        log.info("Пришёл GET запрос /users/" + userId + "/friends");
+        List<User> friends = userService.getAllFriendsById(userId);
+        log.info("Отправлен ответ getAllFriendsById /users/" + userId + "/friends с телом {}", friends);
+        return friends;
     }
 
-
-    @GetMapping("/{id}/friends")
-    public List<User> getFriendsById(@PathVariable("id") Integer userid) {
-        log.info("Пришёл GET запрос /users/" + userid + "/friends");
-        List<User> users = userService.getFriendsById(userid);
-        log.info("Отправлен ответ getFriendsById /users/" + userid + "/friends с телом : {}", users);
-        return users;
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void delFriend(@PathVariable("id") int userId, @PathVariable("friendId") int friendId) {
+        log.info("Пришёл DEL запрос /users/" + userId + "/friends/" + friendId);
+        userService.deleteFriend(userId, friendId);
+        log.info("Отправлен ответ delFriend /users/" + userId + "/friends/" + friendId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable("id") int userId, @PathVariable("otherId") int friendId) {
         log.info("Пришёл GET запрос /users/" + userId + "/friends/common/" + friendId);
         List<User> mutualFriends = userService.getMutualFriends(userId, friendId);
-        log.info("Отправлен ответ getMutualFriends /users/" + userId + "/friends/common/" + friendId + "с телом : {}",
-                mutualFriends);
+        log.info("Отправлен ответ getMutualFriends /users/" + userId + "/friends/common/" +
+                friendId + " с телом{}", mutualFriends);
         return mutualFriends;
-    }
-
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Integer userId) {
-        log.info("Пришёл GET запрос /users/" + userId);
-        User user = inMemoryUserStorage.findUserById(userId);
-        log.info("Отправлен ответ getUserById /users/" + userId + "с телом : {}", user);
-        return user;
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") Integer userId) {
-        log.info("Пришёл DEL запрос /users/" + userId);
-        inMemoryUserStorage.deleteUser(userId);
-        log.info("Отправлен ответ deleteUser /users/" + userId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void delFriend(@PathVariable("id") int userId, @PathVariable("friendId") int friendId) {
-        log.info("Пришёл DEL запрос /users/" + userId + "/friends/" + friendId);
-        userService.delFriend(userId, friendId);
-        log.info("Отправлен ответ delFriend /users/" + userId + "/friends/" + friendId);
     }
 
     public void validationUser(User user) {

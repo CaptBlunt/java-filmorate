@@ -1,65 +1,62 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmReRating;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
-public class FilmService {
+public class FilmService implements FilmStorage {
 
-    private final InMemoryFilmStorage inMemoryFilmStorage;
-    private final InMemoryUserStorage inMemoryUserStorage;
+    private final FilmDao filmDao;
 
-    @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    @Override
+    public Film addFilm(Film film) {
+        return filmDao.addFilm(film);
     }
 
-
-    public Film likeFilm(int userId, int filmId) {
-        Film film = inMemoryFilmStorage.findFilmById(filmId);
-        User user = inMemoryUserStorage.findUserById(userId);
-        Set<Integer> usId = film.getLikes();
-
-        if (usId.contains(userId)) {
-            throw new FilmReRating(String.format("Пользователь с id %d уже оценил фильм с id %d", userId, filmId));
-        }
-        usId.add(userId);
-        film.setLikes(usId);
-        return film;
+    @Override
+    public Film getFilmById(int filmId) {
+        return filmDao.getFilmById(filmId);
     }
 
-    public Film delLikeFilm(int userId, int filmId) {
-        Film film = inMemoryFilmStorage.findFilmById(filmId);
-        User user = inMemoryUserStorage.findUserById(userId);
-        Set<Integer> usId = film.getLikes();
-
-        if (usId.contains(userId)) {
-            usId.remove(userId);
-            film.setLikes(usId);
-        } else {
-            throw new NotFoundException(String.format("Пользователь с id %d не оценивал фильм с id %d",
-                    userId, filmId));
-        }
-        return film;
+    @Override
+    public List<Film> getAllFilms() {
+        return filmDao.getAllFilms();
     }
 
-    public List<Film> getPopularFilm(Integer count) {
-        return inMemoryFilmStorage.getAllFilms()
-                .stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+    @Override
+    public void deleteFilm(int filmId) {
+        filmDao.deleteFilm(filmId);
     }
+
+    @Override
+    public Film changeFilm(Film film) {
+        return filmDao.changeFilm(film);
+    }
+
+    public void likeFilm(Integer userId, Integer friendId) {
+        filmDao.likeFilm(userId, friendId);
+    }
+
+    @Override
+    public Set<Integer> getAllLikesById(Integer userId) {
+        return filmDao.getAllLikesById(userId);
+    }
+
+    @Override
+    public void deleteUserLike(Integer userId, Integer friendId) {
+        filmDao.deleteUserLike(userId, friendId);
+    }
+
+    @Override
+    public List<Film> popularFilm(Integer countFilms) {
+        return filmDao.popularFilm(countFilms);
+    }
+
 }
